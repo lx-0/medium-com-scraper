@@ -13,6 +13,7 @@ export class RapidApiService {
   // List Endpoints
   public static getListInfo(listId: string): Promise<{
     id: string;
+    name: string;
     claps: number;
     voters: number;
     count: number;

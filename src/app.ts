@@ -1,37 +1,13 @@
 import cron from 'node-cron';
-import { RapidApiService } from './rapid-api.service';
-import puppeteer from 'puppeteer';
-import path from 'path';
 import dotenv from 'dotenv';
-
-dotenv.config();
-
-// cron.schedule('* * * * *', () => {
-//   const now = new Date();
-//   console.log(
-//     `[${now.toTimeString().substring(0, 5)}] running a task every minute`
-//   );
-// });
+import { RapidApiService } from './rapid-api.service';
+import { convertHtmlToPdf } from './convert-html-to-pdf.puppeteer.util';
 
 const userName = 'lx0';
 
-async function downloadAndConvertToPdf(url, outputPath, outputFileName) {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+dotenv.config();
 
-  await page.goto(url, { waitUntil: 'networkidle2' });
-
-  await page.waitForSelector('body');
-
-  const pdfPath = path.join(outputPath, `${outputFileName}.pdf`);
-  await page.pdf({ path: pdfPath, format: 'A4', printBackground: true });
-
-  await browser.close();
-
-  console.log(`PDF saved at: ${pdfPath}`);
-}
-
-(async () => {
+async function main() {
   // get user id first
   const userId = (await RapidApiService.getUserId(userName)).id;
 
@@ -54,7 +30,17 @@ async function downloadAndConvertToPdf(url, outputPath, outputFileName) {
 
       console.dir({ articleInfo });
 
-      downloadAndConvertToPdf(articleHtml.html, '.', articleInfo.unique_slug);
+      convertHtmlToPdf(articleHtml.html, `${process.env.DATA_PATH}/${listInfo.name}/${articleInfo.unique_slug}.pdf`);
     });
   });
-})();
+}
+
+cron.schedule('*/15 * * * *', () => {
+  const now = new Date();
+  console.log(
+    `[${now.toTimeString().substring(0, 5)}] running a task every 15 minutes`
+  );
+  // main();
+});
+
+main();
