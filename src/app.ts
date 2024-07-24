@@ -13,18 +13,16 @@ dotenv.config();
 //   );
 // });
 
+const userName = 'lx0';
+
 async function downloadAndConvertToPdf(url, outputPath, outputFileName) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
-  // Navigate to the URL
   await page.goto(url, { waitUntil: 'networkidle2' });
 
-  // Wait for a specific selector to ensure the page is fully loaded
-  // Replace 'body' with a more specific selector if needed
   await page.waitForSelector('body');
 
-  // Create a PDF from the page content
   const pdfPath = path.join(outputPath, `${outputFileName}.pdf`);
   await page.pdf({ path: pdfPath, format: 'A4', printBackground: true });
 
@@ -35,7 +33,7 @@ async function downloadAndConvertToPdf(url, outputPath, outputFileName) {
 
 (async () => {
   // get user id first
-  const userId = (await RapidApiService.getUserId('lx0')).id;
+  const userId = (await RapidApiService.getUserId(userName)).id;
 
   // get stored lists of user
   const userLists = await RapidApiService.getUserLists(userId);
